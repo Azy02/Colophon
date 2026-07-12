@@ -1,0 +1,224 @@
+/* ============================================================================
+   Colophon reading surface — shared by the live preview AND all HTML exports so
+   the exported file looks identical. Self-contained (literal font stacks).
+   Two orthogonal axes:
+     color themes  .theme-light / .theme-sepia / .theme-slate
+     doc styles    .style-clean / .style-paper / .style-compact
+   ============================================================================ */
+.paper{ background-color:var(--paper); color:var(--paper-fg);
+  font-family:var(--doc-font); font-size:var(--doc-fs); line-height:var(--doc-lh);
+  /* One shared text-column width across all three styles so switching Clean /
+     Paper / Compact changes the FONT and density, never the page width — a
+     Letter-page-like ~6.5in content column, not a per-style measure. */
+  --doc-measure:39rem;
+  /* A literal US-Letter sheet (8.5in = 816px @96dpi) with true 1in margins, so
+     the preview reads like the printed PDF / an Overleaf page rather than a
+     fluid web column. Content area 816 - 2*96 = 624px ≈ the 39rem measure. The
+     sheet floats on the pane canvas (hairline ring + ambient + contact shadow,
+     ring polarity flips on dark); it shrinks to fit a narrow pane rather than
+     forcing a horizontal scrollbar. */
+  --page-w:816px; --page-margin:96px;
+  position:relative;   /* anchor for the paged page-number labels */
+  /* fixed Letter sheet — it never shrinks below a page; a narrow pane scrolls
+     horizontally (the pane is freely draggable) rather than squeezing the page */
+  margin:28px auto 56px; width:var(--page-w);
+  border-radius:3px;
+  box-shadow:0 0 0 1px var(--page-ring), 0 10px 28px var(--page-ambient), 0 3px 10px var(--page-contact);
+  min-height:calc(100% - 84px);
+  padding:var(--page-margin) var(--page-margin) calc(var(--page-margin) + 24px);
+  -webkit-font-smoothing:antialiased; word-wrap:break-word; }
+@media (max-width:760px){
+  .paper{ margin:0; max-width:none; width:auto; border-radius:0; box-shadow:none; min-height:100%;
+    padding:36px clamp(18px,5vw,44px) 72px; }
+}
+
+/* Paged reading layout (JS pagination): each sheet is a true fixed-height
+   Letter page. The .page-sep filler spans full page width (negative margins
+   cancel the 1in padding) and is blank paper — it pads out the rest of the
+   sheet, shows a recessed .page-gap groove between sheets, then provides the
+   next sheet's top margin. The page number lives INSIDE the filler (a fixed
+   distance above the sheet's bottom edge, right margin) so it tracks the real
+   layout rather than a predicted offset. Never prints. */
+.paper .page-sep{ max-width:none !important; margin:0 calc(-1 * var(--page-margin)) !important;
+  position:relative; pointer-events:none; }
+.paper .page-sep .page-gap{ position:absolute; left:0; right:0;
+  background:color-mix(in srgb, var(--paper-fg) 5%, transparent);
+  box-shadow:inset 0 7px 8px -8px rgba(0,0,0,.26), inset 0 -7px 8px -8px rgba(0,0,0,.26); }
+.paper .page-no{ position:absolute; right:34px; z-index:3; pointer-events:none;
+  font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+/* selection mirroring: the rendered block matching the editor caret/selection
+   (and vice-versa). A soft accent ring (drawn OUTSIDE the box, so it stays
+   visible around a table whose opaque cells would cover a background tint) plus
+   a faint tint — no vertical bar. */
+.paper .src-linked{ background:color-mix(in srgb, var(--accent) 7%, transparent);
+  box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 26%, transparent);
+  border-radius:4px; transition:box-shadow var(--dur-1) var(--ease), background-color var(--dur-1) var(--ease); }
+
+/* -- color themes -- */
+.paper.theme-light{ --paper:#ffffff; --paper-fg:#2a2823; --muted:#6f6a5f; --rule:#eae7df;
+  --code-bg:#f5f3ee; --code-fg:#3a362e; --accent:#bf5b3e; --accent-strong:#b1543a; --quote:#6f6a5f; --soft:#faf8f4;
+  --page-ring:rgba(26,28,30,.05); --page-ambient:rgba(26,20,12,.07); --page-contact:rgba(26,20,12,.05); --page-seam:rgba(26,20,12,.16);
+  --hl-kw:#8f4e8b; --hl-str:#5a7d4a; --hl-num:#a8552f; --hl-fn:#3d6a8f; --hl-type:#8a6d1f; --hl-com:#9a938a;
+  --co-note:#3d6a8f; --co-tip:#54774a; --co-imp:#8f4e8b; --co-warn:#9a7420; --co-caut:#b3402a; }
+.paper.theme-sepia{ --paper:#f4efe3; --paper-fg:#393325; --muted:#6a6149; --rule:#e4dcc9;
+  --code-bg:#ebe3d1; --code-fg:#473f2c; --accent:#a8552f; --accent-strong:#a8552f; --quote:#6a5f48; --soft:#efe9da;
+  --page-ring:rgba(58,46,22,.07); --page-ambient:rgba(46,36,16,.08); --page-contact:rgba(46,36,16,.05); --page-seam:rgba(46,36,16,.13);
+  --hl-kw:#84487f; --hl-str:#53713f; --hl-num:#a8552f; --hl-fn:#3a627f; --hl-type:#7d621c; --hl-com:#948a72;
+  --co-note:#3a627f; --co-tip:#53713f; --co-imp:#84487f; --co-warn:#8d6a1d; --co-caut:#a63d28; }
+.paper.theme-slate{ --paper:#262521; --paper-fg:#e8e6e0; --muted:#9a958a; --rule:#3a3833;
+  --code-bg:#1d1c19; --code-fg:#dcdad3; --accent:#d98a6a; --accent-strong:#d98a6a; --quote:#a9a59b; --soft:#2c2b26;
+  --page-ring:rgba(249,247,240,.055); --page-ambient:rgba(0,0,0,.45); --page-contact:rgba(0,0,0,.3); --page-seam:rgba(249,247,240,.09);
+  --hl-kw:#b48ead; --hl-str:#a3be8c; --hl-num:#d08770; --hl-fn:#88aac6; --hl-type:#ebcb8b; --hl-com:#7d7a70;
+  --co-note:#88aac6; --co-tip:#a3be8c; --co-imp:#b48ead; --co-warn:#ebcb8b; --co-caut:#d08770; }
+
+/* -- document styles -- */
+.paper.style-clean{ --doc-font:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --doc-fs:17px; --doc-lh:1.6; --h-font:var(--doc-font); }
+.paper.style-paper{ --doc-font:Charter, "Bitstream Charter", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, Cambria, "Times New Roman", serif;
+  --doc-fs:17.5px; --doc-lh:1.58; --h-font:var(--doc-font); }
+.paper.style-paper p{ text-align:justify; hyphens:auto; -webkit-hyphens:auto; }
+.paper.style-paper li{ hyphens:auto; -webkit-hyphens:auto; }
+.paper.style-compact{ --doc-font:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --doc-fs:15px; --doc-lh:1.55; --h-font:var(--doc-font); }
+.paper.style-compact h1{ font-size:1.7em; } .paper.style-compact h2{ font-size:1.32em; margin-top:1.25em; }
+.paper.style-compact p, .paper.style-compact ul, .paper.style-compact ol{ margin-bottom:.75em; }
+
+.paper>*{ max-width:var(--doc-measure); margin-left:auto; margin-right:auto; }
+
+/* -- title block (front matter) -- */
+.doc-header{ margin-bottom:2.2em; }
+.doc-header .doc-title{ font-size:2.05em; font-weight:700; line-height:1.2; letter-spacing:-0.02em; margin:0 0 .25em; }
+.doc-header .doc-subtitle{ font-size:1.18em; color:var(--muted); font-weight:500; margin:0 0 .8em; line-height:1.4; }
+.doc-header .doc-byline{ font-size:.95em; color:var(--muted); }
+.doc-header .doc-byline .sep{ margin:0 .5em; opacity:.6; }
+.doc-header .doc-abstract{ margin-top:1.4em; padding:.9em 1.2em; background:var(--soft); border-radius:9px;
+  font-size:.93em; line-height:1.6; }
+.doc-header .doc-abstract .abs-label{ font-weight:650; margin-right:.6em; }
+.style-paper .doc-header{ text-align:center; }
+.style-paper .doc-header .doc-abstract{ text-align:justify; background:none; padding:0 2.2em; }
+
+/* -- headings -- */
+.paper h1,.paper h2,.paper h3,.paper h4,.paper h5,.paper h6{ font-family:var(--h-font); font-weight:650;
+  line-height:1.25; letter-spacing:-0.015em; margin:1.7em 0 .55em; color:var(--paper-fg); scroll-margin-top:20px; }
+.paper h1{ font-size:1.95em; font-weight:700; margin-top:.2em; letter-spacing:-0.02em; }
+.paper h2{ font-size:1.45em; margin-top:1.5em; padding-bottom:.2em; border-bottom:1px solid var(--rule); }
+.paper h3{ font-size:1.2em; }
+.paper h4{ font-size:1.02em; color:var(--muted); }
+.paper h5,.paper h6{ font-size:.95em; color:var(--muted); }
+.paper .hnum{ margin-right:.6em; color:var(--muted); font-weight:600; }
+
+/* -- body -- */
+.paper p{ margin:0 auto .8em; }
+.paper a{ color:var(--accent-strong,var(--accent)); text-decoration:none; border-bottom:1px solid color-mix(in srgb,var(--accent) 30%, transparent); }
+.paper a:hover{ border-bottom-color:var(--accent); }
+.paper strong{ font-weight:650; }
+.paper em{ font-style:italic; }
+.paper mark{ background:color-mix(in srgb,var(--accent) 22%, transparent); color:inherit; padding:.05em .15em; border-radius:3px; }
+.paper ul,.paper ol{ margin:0 auto .85em; padding-left:1.4em; }
+.paper li{ margin:.28em 0; }
+.paper li::marker{ color:var(--muted); }
+.paper li.task-list-item{ list-style:none; margin-left:-1.4em; }
+.paper li.task-list-item input{ accent-color:var(--accent); margin-right:.45em; transform:translateY(1px); }
+.paper ::selection{ background:color-mix(in srgb, var(--accent) 30%, var(--paper)); }
+.paper blockquote{ margin:1.1em auto; padding:.2em 1em; border-left:3px solid var(--rule); color:var(--quote); }
+.paper blockquote p{ margin:.3em 0; }
+.paper hr{ border:0; border-top:1px solid var(--rule); margin:2em auto; }
+.paper img{ max-width:100%; border-radius:8px; }
+.paper figure{ margin:1.6em auto; text-align:center; }
+.paper figure img{ margin:0 auto; }
+.paper figcaption{ font-size:.88em; color:var(--muted); margin-top:.6em; line-height:1.5; }
+.paper figcaption .fig-no{ font-weight:650; color:var(--paper-fg); margin-right:.5em; }
+.paper .tbl-caption{ font-size:.88em; color:var(--muted); text-align:center; margin:-0.6em auto 1.4em; }
+.paper .tbl-caption .fig-no{ font-weight:650; color:var(--paper-fg); margin-right:.5em; }
+.paper kbd{ font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.8em;
+  background:var(--code-bg); border:1px solid var(--rule); border-bottom-width:2px; border-radius:5px; padding:.1em .45em; }
+
+/* -- code -- */
+.paper code{ font-family:ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size:.86em; background:var(--code-bg); color:var(--code-fg); padding:.12em .4em; border-radius:5px; }
+.paper .code-wrap{ position:relative; margin:1.1em auto; max-width:var(--doc-measure); }
+.paper pre{ background:var(--code-bg); border:1px solid var(--rule); border-radius:9px;
+  padding:14px 16px; overflow-x:auto; margin:0; line-height:1.5; }
+.paper .code-wrap+*{ margin-top:1.1em; }
+.paper pre code{ background:none; padding:0; font-size:.86em; color:var(--code-fg); display:block; }
+.paper .code-tools{ position:absolute; top:7px; right:8px; display:flex; gap:6px; align-items:center; }
+.paper .code-lang{ font-size:10px; color:var(--muted); font-family:var(--doc-font); letter-spacing:.04em; text-transform:uppercase; }
+.paper .code-copy{ border:1px solid var(--rule); background:var(--paper); color:var(--muted); font-size:10.5px;
+  padding:3px 8px; border-radius:6px; cursor:pointer; opacity:0; transition:.15s; }
+.paper .code-wrap:hover .code-copy{ opacity:1; }
+.paper .code-copy:hover{ color:var(--accent); border-color:var(--accent); }
+/* highlight.js token mapping */
+.paper .hljs-keyword,.paper .hljs-selector-tag,.paper .hljs-tag{ color:var(--hl-kw); }
+.paper .hljs-string,.paper .hljs-regexp,.paper .hljs-addition,.paper .hljs-attribute{ color:var(--hl-str); }
+.paper .hljs-number,.paper .hljs-literal,.paper .hljs-symbol,.paper .hljs-bullet,.paper .hljs-link,.paper .hljs-deletion{ color:var(--hl-num); }
+.paper .hljs-title,.paper .hljs-function .hljs-title,.paper .hljs-name,.paper .hljs-section,.paper .hljs-title.function_{ color:var(--hl-fn); }
+.paper .hljs-type,.paper .hljs-built_in,.paper .hljs-builtin-name,.paper .hljs-class .hljs-title,.paper .hljs-title.class_,.paper .hljs-attr,.paper .hljs-variable,.paper .hljs-template-variable{ color:var(--hl-type); }
+.paper .hljs-comment,.paper .hljs-quote,.paper .hljs-meta{ color:var(--hl-com); font-style:italic; }
+.paper .hljs-emphasis{ font-style:italic; } .paper .hljs-strong{ font-weight:650; }
+
+/* -- tables -- */
+.paper table{ border-collapse:collapse; width:100%; margin:1.2em auto; font-size:.93em; max-width:var(--doc-measure); }
+.paper th,.paper td{ border:1px solid var(--rule); padding:.5em .7em; text-align:left; vertical-align:top; }
+.paper th{ font-weight:600; background:color-mix(in srgb,var(--paper-fg) 4%, transparent); }
+.paper tr:nth-child(even) td{ background:color-mix(in srgb,var(--paper-fg) 2.5%, transparent); }
+.style-paper table{ font-size:.9em; }
+.style-paper th{ border-top:2px solid var(--paper-fg); border-bottom:1px solid var(--paper-fg); border-left:0; border-right:0; background:none; }
+.style-paper td{ border-left:0; border-right:0; border-bottom:1px solid var(--rule); border-top:0; }
+.style-paper tr:nth-child(even) td{ background:none; }
+.style-paper table tr:last-child td{ border-bottom:2px solid var(--paper-fg); }
+
+/* -- math -- */
+.paper .katex{ font-size:1.04em; }
+.paper .katex-display{ margin:1em auto; overflow-x:auto; overflow-y:hidden; padding:.15em 0; }
+.paper .math-err{ color:#b3402a; }
+.paper .eq{ position:relative; scroll-margin-top:20px; }
+.paper a.eqref{ border-bottom:0; }
+
+/* -- callouts (GitHub-style, emitted by LLMs) -- */
+.paper .markdown-alert{ margin:1.2em auto; padding:.75em 1.05em; border-left:3px solid var(--co-c, var(--rule));
+  background:color-mix(in srgb, var(--co-c, var(--muted)) 7%, transparent); border-radius:0 8px 8px 0; max-width:var(--doc-measure); }
+.paper .markdown-alert p{ margin:.35em 0; }
+.paper .markdown-alert .markdown-alert-title{ display:flex; align-items:center; gap:.45em; font-weight:650;
+  font-size:.9em; letter-spacing:.02em; color:var(--co-c, var(--paper-fg)); margin:0 0 .2em; }
+.paper .markdown-alert .markdown-alert-title svg{ fill:currentColor; width:15px; height:15px; }
+.paper .markdown-alert-note{ --co-c:var(--co-note); }
+.paper .markdown-alert-tip{ --co-c:var(--co-tip); }
+.paper .markdown-alert-important{ --co-c:var(--co-imp); }
+.paper .markdown-alert-warning{ --co-c:var(--co-warn); }
+.paper .markdown-alert-caution{ --co-c:var(--co-caut); }
+
+/* -- footnotes -- */
+.paper [data-footnote-ref]{ font-size:.82em; }
+.paper .footnotes{ margin-top:2.6em; font-size:.88em; color:var(--quote); }
+.paper .footnotes::before{ content:""; display:block; width:120px; border-top:1px solid var(--rule); margin-bottom:1em; }
+.paper .footnotes h2.sr-only, .paper .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.paper .footnotes li{ margin:.4em 0; }
+.paper [data-footnote-backref]{ border-bottom:0; margin-left:.3em; }
+
+/* -- table of contents -- */
+.paper nav.toc{ border:1px solid var(--rule); border-radius:10px; padding:1em 1.3em; margin:1.6em auto;
+  background:var(--soft); font-size:.92em; }
+.paper nav.toc .toc-title{ font-weight:650; margin-bottom:.5em; letter-spacing:.01em; }
+.paper nav.toc ol{ margin:0; padding-left:1.2em; }
+.paper nav.toc li{ margin:.22em 0; }
+.paper nav.toc a{ border-bottom:0; color:var(--paper-fg); }
+.paper nav.toc a:hover{ color:var(--accent); }
+
+/* -- references / citations -- */
+.paper a.cite{ border-bottom:0; white-space:nowrap; }
+.paper .cite-unresolved{ color:#b3402a; border-bottom:1px dashed #b3402a; cursor:help; }
+.paper section.references{ margin-top:2.4em; }
+.paper section.references h2{ font-size:1.3em; }
+.paper section.references ol,.paper section.references ul{ padding-left:1.6em; font-size:.92em; }
+.paper section.references li{ margin:.5em 0; line-height:1.55; }
+.paper section.references .ref-item{ scroll-margin-top:20px; }
+
+/* -- mermaid diagrams -- */
+.paper .mermaid-wrap{ margin:1.4em auto; text-align:center; max-width:var(--doc-measure); }
+.paper .mermaid-wrap svg{ max-width:100%; height:auto; }
+.paper .mermaid-error{ text-align:left; }
+.paper .mermaid-error .err-note{ font-size:.8em; color:#b3402a; margin-bottom:.3em; }
+
+/* -- mermaid pending state (M5/M6: shown briefly while the async render is in flight) -- */
+.paper .code-wrap.mermaid-pending{ opacity:.5; transition:opacity .15s; }

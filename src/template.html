@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Colophon — Markdown & Math</title>
+<style id="katex-style">{{KATEX_CSS}}</style>
+<style id="chrome-style">{{CHROME_CSS}}</style>
+<style id="reading-style">{{READING_CSS}}</style>
+<style id="print-style">{{PRINT_CSS}}</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="toolbar" role="toolbar" aria-label="Main toolbar">
+    <div class="brand"><span class="mark">Colophon</span><span class="sub">offline document studio</span></div>
+
+    <div class="group">
+      <button class="btn" id="btnSidebar" title="Library & outline (Ctrl/⌘+\)" aria-label="Toggle sidebar">☰</button>
+      <button class="btn" id="btnNew" title="New document (Ctrl/⌘+Alt+N)">New</button>
+      <button class="btn" id="btnOpen" title="Open .md / .tex / .bib files from disk">Open</button>
+      <button class="btn" id="btnSave" title="Save locally (Ctrl/⌘+S) — stores in your library and snapshots a version">Save</button>
+    </div>
+    <div class="divider-v"></div>
+    <div class="group">
+      <div class="menu-wrap">
+        <button class="btn primary" id="btnExport" title="Export (Ctrl/⌘+Shift+E)" aria-haspopup="menu" aria-expanded="false">Export ▾</button>
+        <div class="menu" id="exportMenu" role="menu" hidden>
+          <button role="menuitem" data-export="pdf" title="Print-quality PDF via the browser's print dialog">PDF</button>
+          <button role="menuitem" data-export="html" title="A single self-contained .html page">HTML</button>
+          <button role="menuitem" data-export="docx" title="Word document with native, editable equations">Word (.docx)</button>
+          <button role="menuitem" data-export="word" title="Copies Word-ready content — paste into Word, equations stay native">Copy for Word</button>
+          <button role="menuitem" data-export="md" title="The Markdown source as a .md file">Markdown (.md)</button>
+          <button role="menuitem" data-export="tex" title="LaTeX draft — a starting point, not submission-ready">LaTeX (.tex)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="group">
+      <span class="lbl">View</span>
+      <div class="seg view" id="viewSeg">
+        <button data-v="split" class="active" title="Ctrl/⌘+Alt+1">Split</button>
+        <button data-v="editor" title="Ctrl/⌘+Alt+2">Write</button>
+        <button data-v="preview" title="Ctrl/⌘+Alt+3">Read</button>
+      </div>
+    </div>
+    <div class="group">
+      <div class="menu-wrap">
+        <button class="btn" id="btnAppearance" title="Document appearance — style, tone, layout, text size" aria-haspopup="true" aria-expanded="false"><span class="ap-word">Appearance</span> ▾</button>
+        <div class="menu appearance-menu" id="appearanceMenu" hidden>
+          <div class="ap-row"><span class="ap-l">Style</span>
+            <div class="seg style" id="styleSeg">
+              <button data-s="clean" class="active" title="Modern sans-serif">Clean</button>
+              <button data-s="paper" title="Academic serif">Paper</button>
+              <button data-s="compact" title="Dense notes">Compact</button>
+            </div>
+          </div>
+          <div class="ap-row"><span class="ap-l">Tone</span>
+            <div class="seg theme" id="themeSeg">
+              <button data-t="light" class="active">Light</button>
+              <button data-t="sepia">Sepia</button>
+              <button data-t="slate">Slate</button>
+            </div>
+          </div>
+          <div class="ap-row"><span class="ap-l">Layout</span>
+            <div class="seg layout" id="layoutSeg">
+              <button data-l="continuous" class="active" title="Continuous scroll">Flow</button>
+              <button data-l="paged" title="Paged, with page breaks &amp; numbers">Pages</button>
+            </div>
+          </div>
+          <div class="ap-row"><span class="ap-l">Text size</span>
+            <div class="slider-ctl"><input type="range" id="apScale" min="60" max="200" step="5" aria-label="Preview text size">
+            <span class="slider-val" id="apScaleVal">100%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="group">
+      <button class="btn" id="btnScrollSync" title="When on, scrolling one pane scrolls the other (Split view)" aria-label="Sync scrolling" aria-pressed="true">⇅ Sync scroll</button>
+      <button class="btn icon" id="btnPalette" title="Command palette (Ctrl/⌘+K)">⌘K</button>
+      <button class="btn icon" id="btnSettings" title="Settings" aria-label="Settings">⚙</button>
+    </div>
+  </div>
+
+  <div class="main" id="main" data-view="split">
+    <aside id="sidebar" aria-label="Documents and outline">
+      <div class="side-tabs" role="tablist">
+        <button id="tabLibrary" class="active" role="tab" aria-selected="true">Library</button>
+        <button id="tabOutline" role="tab" aria-selected="false">Outline</button>
+        <button class="side-x" id="btnSidebarClose" title="Close" aria-label="Close sidebar">×</button>
+      </div>
+      <div class="side-panel" id="panelLibrary" role="tabpanel">
+        <div class="lib-actions">
+          <button class="btn small" id="btnNewFromTpl" title="New document from a template">＋ From template…</button>
+          <button class="btn small" id="btnFolderRefresh" title="Re-read the linked folder" hidden>Refresh</button>
+        </div>
+        <input type="search" id="libSearch" placeholder="Filter documents…" aria-label="Filter documents">
+        <ul id="libList" class="doc-list"></ul>
+        <div class="lib-path" id="libPath" title="Right-click for project actions">
+          <div class="lib-path-row"><select class="proj-select" id="projectSelect" aria-label="Project — where this library lives"></select></div>
+          <div class="lib-path-actions">
+            <button class="btn small primary" id="btnReconnectFolder" title="Reopen this project's folder (one permission click)" hidden>Reconnect</button>
+            <button class="btn small" id="btnChooseFolder" title="Open a folder as a project (Chromium browsers)">＋ Add folder…</button>
+          </div>
+        </div>
+      </div>
+      <div class="side-panel" id="panelOutline" role="tabpanel" hidden>
+        <ul id="outlineList" class="outline-list"></ul>
+        <div class="lib-note" id="outlineEmpty">Headings will appear here.</div>
+      </div>
+    </aside>
+
+    <div class="editor-pane">
+      <div class="findbar" id="findbar" hidden>
+        <input id="findInput" placeholder="Find…" aria-label="Find">
+        <span class="find-count" id="findCount">0/0</span>
+        <button class="btn small" id="findPrev" title="Previous (Shift+Enter)">↑</button>
+        <button class="btn small" id="findNext" title="Next (Enter)">↓</button>
+        <input id="replaceInput" placeholder="Replace with…" aria-label="Replace with">
+        <button class="btn small" id="replaceOne" title="Replace current">Replace</button>
+        <button class="btn small" id="replaceAll" title="Replace all">All</button>
+        <button class="btn small icon" id="findClose" title="Close (Esc)">×</button>
+      </div>
+      <textarea id="editor" spellcheck="false" placeholder="Start typing Markdown… or paste from ChatGPT/Claude to see it rendered." aria-label="Markdown editor"></textarea>
+    </div>
+    <div class="splitter" id="splitter" title="Drag to resize"></div>
+    <div class="preview-pane" id="previewPane">
+      <article class="paper theme-light style-clean" id="preview" aria-live="polite"></article>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span class="file" id="fileName"><span class="dot" id="statusDot"></span><span id="fileLabel">untitled.md</span></span>
+    <span class="sep">|</span>
+    <span id="counts">0 words</span>
+    <span class="sep">|</span>
+    <button class="linklike" id="btnHistory" title="Version history for this document">history</button>
+    <div class="right">
+      <span id="saveInfo" title="Autosave state">—</span>
+      <span class="sep">|</span>
+      <span id="libInfo">offline</span>
+      <span class="sep">|</span>
+      <span id="renderInfo">—</span>
+    </div>
+  </div>
+</div>
+
+<div id="backdrop" hidden></div>
+
+<div class="palette" id="palette" role="dialog" aria-label="Command palette" hidden>
+  <input id="paletteInput" placeholder="Type a command or document name…" aria-label="Command">
+  <ul id="paletteList"></ul>
+</div>
+
+<div class="dialog" id="dialog" role="dialog" aria-modal="true" hidden>
+  <div class="dialog-head"><span id="dialogTitle">Dialog</span><button class="lib-x" id="dialogClose" aria-label="Close">×</button></div>
+  <div class="dialog-body" id="dialogBody"></div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+
+<input type="file" id="fileInput" accept=".md,.markdown,.mdown,.txt,.bib,.tex,.latex,text/markdown" multiple style="display:none">
+<input type="file" id="imgInput" accept="image/*" multiple style="display:none">
+
+<!-- KaTeX JS is bundled inside the app (esbuild) — only its font CSS is vendored above. -->
+<script type="text/plain" id="vendor-mermaid">{{MERMAID_JS}}</script>
+<script>{{APP_JS}}</script>
+</body>
+</html>

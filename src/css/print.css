@@ -1,0 +1,47 @@
+/* ============================================================================
+   Print (PDF export): only the rendered document, ink-on-white regardless of
+   screen theme, careful page-break behavior. Chromium honors the @page margin
+   boxes (page numbers); other engines ignore them harmlessly.
+   ============================================================================ */
+@media print{
+  .toolbar,.statusbar,.splitter,.editor-pane,#sidebar,.findbar,#toasts,#backdrop,.palette,.dialog{ display:none !important; }
+  .app,.main{ display:block !important; height:auto !important; }
+  .main{ grid-template-columns:none !important; }
+  .preview-pane{ display:block !important; overflow:visible !important; height:auto !important; background:#fff !important; }
+  html,body{ height:auto !important; overflow:visible !important; background:#fff !important; }
+
+  .paper{ padding:0 !important; background:#fff !important; color:#000 !important;
+    margin:0 !important; width:auto !important; max-width:none !important; border-radius:0 !important; box-shadow:none !important;
+    min-height:0 !important;
+    --paper:#ffffff; --paper-fg:#000000; --muted:#444444; --rule:#bbbbbb;
+    --code-bg:#f4f4f4; --code-fg:#111111; --accent:#000000; --quote:#333333; --soft:#f7f7f7;
+    --hl-kw:#5b2d87; --hl-str:#2d5c1e; --hl-num:#8a3c14; --hl-fn:#1d4c73; --hl-type:#6b520f; --hl-com:#666666;
+    --co-note:#1d4c73; --co-tip:#2d5c1e; --co-imp:#5b2d87; --co-warn:#6b520f; --co-caut:#8a3c14; }
+  .paper>*{ max-width:none !important; }
+  .paper a{ color:#000 !important; border-bottom:0 !important; }
+  .paper .code-tools{ display:none !important; }
+  .paper .page-sep, .paper .page-no{ display:none !important; }   /* screen-only page guides; real breaks come from @page */
+
+  /* page-break discipline */
+  .paper h1,.paper h2,.paper h3,.paper h4{ break-after:avoid; page-break-after:avoid; }
+  .paper .code-wrap,.paper pre{ break-inside:avoid; page-break-inside:avoid; }
+  .paper pre{ white-space:pre-wrap; word-break:break-word; }
+  .paper figure,.paper .markdown-alert,.paper .eq,.paper .katex-display{ break-inside:avoid; page-break-inside:avoid; }
+  .paper table{ break-inside:auto; }
+  .paper thead{ display:table-header-group; }
+  .paper tr{ break-inside:avoid; page-break-inside:avoid; }
+  .paper p{ orphans:3; widows:3; }
+  .paper .doc-header{ break-after:avoid; }
+  .paper nav.toc{ break-inside:avoid; }
+
+  @page{
+    margin:20mm 18mm 22mm;
+    @bottom-center{ content:counter(page); font-size:9pt; color:#555; }
+  }
+}
+
+/* M5/M6 print tweak: keep mermaid diagrams intact across page breaks and bounded. */
+@media print{
+  .paper .mermaid-wrap{ break-inside:avoid; page-break-inside:avoid; }
+  .paper .mermaid-wrap svg{ max-width:100% !important; height:auto; }
+}

@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Colophon — technical Markdown to PDF, HTML, and Word, fully offline</title>
+<meta name="description" content="A private, fully-offline document studio for technical Markdown. Write or paste Markdown with math, work in real folders on your disk, export paper-quality PDF/HTML/Word — equations arrive in Word native and editable. One HTML file — no install, no account, no server.">
+<style>
+  :root{
+    --bg:#f5f4f0; --surface:#ffffff; --text:#2a2823; --muted:#8a857b;
+    --border:#e7e4dc; --border-strong:#dad6cd; --accent:#bf5b3e; --accent-soft:#f1e7e1;
+    --shadow:rgba(20,18,14,.10);
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#201f1c; --surface:#2a2925; --text:#e8e6e0; --muted:#9a958a;
+      --border:#38362f; --border-strong:#45423a; --accent:#d98a6a; --accent-soft:#463228;
+      --shadow:rgba(0,0,0,.4);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:16px/1.65 var(--ui);-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+
+  header{display:flex;align-items:baseline;justify-content:space-between;padding:28px 0 0}
+  .mark{font-family:var(--serif);font-size:22px;font-weight:700;letter-spacing:.2px}
+  .mark small{font-family:var(--ui);font-weight:400;color:var(--muted);font-size:12px;margin-left:8px;letter-spacing:.4px}
+  nav a{color:var(--muted);font-size:14px;margin-left:18px}
+
+  .hero{padding:72px 0 40px;text-align:left;max-width:720px}
+  h1{font-family:var(--serif);font-size:clamp(30px,5.4vw,44px);line-height:1.18;margin:0 0 18px;font-weight:700;text-wrap:balance}
+  h1 em{font-style:normal;color:var(--accent)}
+  .sub{font-size:18px;color:var(--muted);margin:0 0 30px;max-width:60ch}
+  .cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-block;padding:12px 22px;border-radius:8px;font-weight:600;font-size:15px;border:1px solid var(--border-strong)}
+  .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .btn.primary:hover{text-decoration:none;filter:brightness(1.06)}
+  .btn.ghost{background:var(--surface);color:var(--text)}
+  .btn.ghost:hover{text-decoration:none;border-color:var(--accent)}
+  .trust{margin-top:14px;font-size:13.5px;color:var(--muted)}
+  .trust code{font-family:var(--mono);font-size:12.5px}
+
+  .shots{padding:26px 0 8px}
+  .shot{background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 30px var(--shadow);overflow:hidden;margin:0 0 10px}
+  .shot img{display:block;width:100%;height:auto}
+  .caption{font-size:14px;color:var(--muted);margin:10px 2px 34px}
+  .caption b{color:var(--text)}
+  .arrow{ text-align:center;color:var(--accent);font-size:16px;font-weight:600;margin:-16px 0 18px }
+
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;padding:36px 0}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px}
+  .card h3{margin:0 0 8px;font-size:16.5px}
+  .card p{margin:0;font-size:14.5px;color:var(--muted)}
+  .card p code{font-family:var(--mono);font-size:12.5px}
+
+  .steps{padding:8px 0 26px}
+  h2{font-family:var(--serif);font-size:26px;margin:38px 0 14px}
+  ol.how{margin:0;padding-left:22px;max-width:66ch}
+  ol.how li{margin:0 0 10px}
+  ol.how b{font-weight:600}
+
+  .faq{max-width:70ch;padding-bottom:20px}
+  .faq dt{font-weight:600;margin:20px 0 6px}
+  .faq dd{margin:0;color:var(--muted)}
+  .faq code{font-family:var(--mono);font-size:13px}
+
+  footer{border-top:1px solid var(--border);margin-top:48px;padding:26px 0 46px;font-size:13.5px;color:var(--muted)}
+  footer .colo{font-family:var(--serif);font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="mark">Colophon<small>markdown · math</small></div>
+    <nav>
+      <a href="https://github.com/Azy02/Colophon">Source</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Technical Markdown in. A finished paper out — <em>and your equations survive the trip to Word.</em></h1>
+    <p class="sub">Colophon is a private document studio for Markdown with math. Write it — or paste
+    it straight from ChatGPT or Claude, <code>\(…\)</code> delimiters and all — and it renders as a
+    typeset page. Work in real folders on your disk, then export paper-quality PDF, standalone
+    HTML, or a Word file whose equations arrive <b>native and editable</b>, not as images. Nothing
+    you write ever leaves your machine.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Azy02/Colophon/releases/latest/download/colophon.html">Download the app — one HTML file</a>
+      <a class="btn ghost" href="https://github.com/Azy02/Colophon">Read the source</a>
+    </div>
+    <p class="trust">Free · no install, no account, no server, no telemetry · your documents are
+    plain <code>.md</code> files in your own folders · the app code ships <code>unminified</code>
+    on purpose, so the privacy claims are checkable</p>
+  </section>
+
+  <section class="shots">
+    <figure class="shot"><img src="hero-app.png" alt="Colophon in split view: Markdown source with LaTeX math on the left, and the same document typeset on the right — title block, table of contents, and a numbered Black–Scholes equation"></figure>
+    <p class="caption"><b>The studio.</b> Markdown on the left, the finished page on the right —
+    KaTeX-typeset math with equation numbering and clickable <code>\eqref</code> cross-references,
+    callouts, citations, syntax-highlighted code, figures loaded straight from your folder.</p>
+    <div class="arrow">↓ &nbsp;Export → Word (.docx)&nbsp; ↓</div>
+    <figure class="shot"><img src="hero-word.png" alt="The exported document open in Microsoft Word: the same title block and Black–Scholes equation, rendered by Word's own equation engine with a right-aligned equation number"></figure>
+    <p class="caption"><b>The same document in Microsoft Word.</b> Every equation is a native Word
+    equation — click into it and keep editing. Not a screenshot of math, not an image: OMML, the
+    format Word's own equation editor uses. <em>Both screenshots are real output of the current
+    build — not mockups.</em></p>
+  </section>
+
+  <section class="cols">
+    <div class="card">
+      <h3>Private by construction</h3>
+      <p>One local HTML file. No server calls, no account, no telemetry — claims you can check,
+      because the application code ships unminified. Remote images in documents are blocked by
+      default, so a pasted document can't phone home either. Exported HTML carries a strict CSP
+      and zero scripts.</p>
+    </div>
+    <div class="card">
+      <h3>Math that survives Word</h3>
+      <p>The #1 way technical documents break: equations turn into images (or garbage) on the way
+      to <code>.docx</code>. Colophon converts KaTeX → MathML → OMML so Word gets real equations.
+      Verified by opening exports in actual Microsoft Word — which caught three library bugs that
+      structural XML checks passed (three library bugs were caught this way that structural checks had passed).</p>
+    </div>
+    <div class="card">
+      <h3>Your files, your folders</h3>
+      <p>Link a folder and it becomes a project: documents are plain <code>.md</code> files on
+      your disk, figures live in <code>figs/</code>, everything works in git, Dropbox, or a plain
+      backup. No import, no lock-in — the offline-Overleaf model. (Browser storage remains as a
+      zero-setup fallback.)</p>
+    </div>
+  </section>
+
+  <section class="steps">
+    <h2>How it works</h2>
+    <ol class="how">
+      <li><b>Download one file.</b> Open <code>colophon.html</code> in any modern browser — from
+      your Downloads folder, a USB stick, or an air-gapped machine.</li>
+      <li><b>Write, or paste.</b> Markdown with LaTeX math renders as you type — including the
+      <code>\(…\)</code>/<code>\[…\]</code> delimiters LLMs emit. Open a <code>.tex</code> file
+      and Colophon offers a Markdown conversion, math kept intact. Link a folder to work on real
+      files; paste images and they land in <code>figs/</code>.</li>
+      <li><b>Export.</b> PDF (print-quality page breaks), standalone HTML (script-free,
+      CSP-locked), LaTeX, Markdown — or Word, with equations your collaborators can keep editing.
+      Autosave, version history, BibTeX citations, Mermaid diagrams, footnotes, callouts included.</li>
+    </ol>
+  </section>
+
+  <section class="faq" id="faq">
+    <h2>Honest FAQ</h2>
+    <dl>
+      <dt>Why is the file ~7&nbsp;MB?</dt>
+      <dd>KaTeX's math fonts are embedded so math renders offline, and the Mermaid diagram engine
+      ships as an inert blob that isn't even parsed until a document actually uses a diagram.
+      It's a one-time download that then works forever, anywhere.</dd>
+      <dt>Is it really offline?</dt>
+      <dd>Yes — the page makes zero network requests. Remote images in your documents are blocked
+      by default (per-document opt-in), so a pasted document can't phone home either.</dd>
+      <dt>Where do my documents live?</dt>
+      <dd>Preferably in a folder you pick: real <code>.md</code> files on your disk that any other
+      tool can read (folder linking needs a Chromium browser). Without a folder, documents live in
+      the browser's local storage — exportable to <code>.md</code> anytime.</dd>
+      <dt>What about the messy Markdown LLMs produce?</dt>
+      <dd>The renderer meets it where it is: <code>\(…\)</code> and <code>\[…\]</code> math render
+      directly, GitHub-style callouts and task lists work, and LaTeX pastes get a conversion
+      offer. There's deliberately no auto-"repair" feature — earlier versions had one, and it
+      couldn't keep up with real-world paste variants, so it was removed rather than shipped
+      half-working.</dd>
+      <dt>Why a browser app and not a native one?</dt>
+      <dd>The single file is the zero-install trial. If there's real demand for file associations,
+      one-click PDF, and a menu bar, a native app is the roadmap — the engine is built to be
+      wrapped. Tell us if you'd want that.</dd>
+      <dt>What's with the name?</dt>
+      <dd>A <em>colophon</em> is the finishing mark of a well-made book — the note at the end that
+      says how it was made. Fitting, for the finishing touch on your documents.</dd>
+    </dl>
+  </section>
+
+  <footer>
+    <div class="wrap-inner">
+      <p class="colo">Colophon, about this page: hand-written HTML and CSS, no framework, no
+      tracking, system fonts only. The screenshots are real output of the app itself.</p>
+      <p>© 2026 · <a href="https://github.com/Azy02/Colophon">github.com/Azy02/Colophon</a></p>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
